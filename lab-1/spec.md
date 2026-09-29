@@ -46,7 +46,7 @@
 - Document 1:1 Order.
 - Language 1:N Order двічі: `source_language_id` і `target_language_id`.
 - Translator M:N Language ("знає мови"), без власних атрибутів, тому без сполучної таблиці.
-- Order 1:N Request. Translator 1:N Request. Разом це зв'язок Order M:N Translator через асоціативну сутність Request. Не більше одного Request на Order має статус `accepted`.
+- Order 0:N Request. Translator 1:N Request. Разом це зв'язок Order M:N Translator через асоціативну сутність Request. Не більше одного Request на Order має статус `accepted`.
 - Order 1:N Payment (не більше двох: перша та друга половина).
 
 ## Функціональні вимоги
