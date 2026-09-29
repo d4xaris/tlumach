@@ -1,2 +1,25 @@
-# tlumach
-Translation ordering platform. Software modeling labs, KPI 2026
+# Tlumach | Тлумач
+Проєкт, у який інтегровано лабораторні роботи з дисципліни "Компоненти програмної інженерії (Частина 2: Моделювання та аналіз вимог до ПЗ)", КПІ ім. Ігоря Сікорського, 2026.
+
+![Mermaid](https://img.shields.io/badge/diagrams-Mermaid-ff3670?style=for-the-badge&logo=mermaid&logoColor=white)
+![Markdown](https://img.shields.io/badge/docs-Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white)
+![Status](https://img.shields.io/badge/status-in%20progress-yellow?style=for-the-badge)
+
+---
+## Про проєкт
+**Tlumach** – платформа замовлення перекладів. Client завантажує документ, обирає мову й оплачує замовлення, а Translator виконує його. Готовий переклад перевіряє Editor, а Mediator контролює весь процес і передає фінальний результат до Client.
+
+## Ролі
+| Роль | Що робить |
+|------|-----------|
+| **Client** | Завантажує документ (.docx), замовляє й оплачує переклад |
+| **Translator** | Приймає запит і виконує переклад |
+| **Editor** | Редагує переклад перед видачею |
+| **Mediator** | Контролює замовлення, розсилає запити, передає результат Client |
+
+## Як це працює
+1. Client завантажує документ, обирає мову та вносить першу половину оплати.
+2. Mediator розсилає запит усім Translator, які знають потрібну мову.
+3. Translator приймає запит і виконує переклад.
+4. Editor перевіряє та редагує результат.
+5. Client вносить другу половину оплати й отримує фінальний переклад.
