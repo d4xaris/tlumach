@@ -1,0 +1,156 @@
+erDiagram
+
+    Client {
+        int id PK
+        string full_name
+        string email
+    }
+
+    Translator {
+        int id PK
+        string full_name
+        string email
+    }
+
+    Editor {
+        int id PK
+        string full_name
+        string email
+    }
+
+    Mediator {
+        int id PK
+        string full_name
+        string email
+    }
+
+    Language {
+        int id PK
+        string code
+        string name
+    }
+
+    Document {
+        int id PK
+        string file_name
+        int word_count
+        datetime uploaded_at
+    }
+
+    Order {
+        int id PK
+        int client_id FK
+        int mediator_id FK
+        int editor_id FK "nullable"
+        int document_id FK
+        int source_language_id FK
+        int target_language_id FK
+        decimal rate_per_word
+        string status
+        datetime created_at
+        string result_file_name "nullable"
+        datetime result_uploaded_at "nullable"
+    }
+
+    Request {
+        int id PK
+        int order_id FK
+        int translator_id FK
+        string status
+        datetime sent_at
+        datetime responded_at
+    }
+
+    Payment {
+        int id PK
+        int order_id FK
+        string type
+        string status
+        date due_date
+        datetime paid_at
+    }
+
+
+    Client ||--o{ Order : "creates"
+    Mediator ||--o{ Order : "controls"
+
+    Editor o|--o{ Order : "assigned to"
+
+    Document ||--|| Order : "for"
+
+    Language ||--o{ Order : "source_language"
+    Language ||--o{ Order : "target_language"
+
+    Translator o{--o{ Language : "knows"
+
+    Order ||--o{ Request : "has"
+    Translator ||--o{ Request : "receives"
+
+    Order ||--|{ Payment : "has"
+
+
+    %% =========================
+    %% BUSINESS CONSTRAINTS
+    %% =========================
+
+    %% Order:
+    %% - no translator_id
+    %% - translator is determined by the single accepted Request
+    %% - source_language_id != target_language_id
+    %% - price = Document.word_count * Order.rate_per_word
+    %% - rate_per_word is fixed at Order creation
+    %% - status:
+    %%   created
+    %%   sent_to_translators
+    %%   in_progress
+    %%   in_editing
+    %%   ready
+    %%   confirmed
+    %%   closed
+    %%   cancelled
+    %% - editor_id is nullable until Editor assignment
+    %% - result_file_name is nullable until editing is completed
+    %% - result_uploaded_at is nullable until editing is completed
+    %% - result is issued to Client only after second payment is paid
+
+    %% Request:
+    %% - status:
+    %%   pending | accepted | rejected
+    %% - (order_id, translator_id) is unique
+    %% - one Translator receives at most one Request per Order
+    %% - at most one Request per Order may have status = accepted
+    %% - accepted Request determines the Order translator
+    %% - Requests are sent only to Translators who know both
+    %%   source_language_id and target_language_id
+
+    %% Payment:
+    %% - at most two Payments per Order
+    %% - types:
+    %%   first_half | second_half
+    %% - statuses:
+    %%   pending | paid | refunded | overdue
+    %% - no amount attribute
+    %% - each payment amount = 50% of Order price
+    %% - first_half.due_date = Order.created_at
+    %% - if nobody accepts the translation:
+    %%   first_half becomes refunded
+    %% - if second_half is not paid by due_date:
+    %%   second_half becomes overdue
+    %% - after N days without Client response:
+    %%   Order becomes cancelled
+
+    %% Document:
+    %% - only .docx files are accepted
+    %% - word_count is calculated automatically
+
+    %% Language:
+    %% - predefined directory
+    %% - custom languages are not supported
+
+    %% General:
+    %% - all IDs and foreign keys are int
+    %% - Translator M:N Language is a direct relationship
+    %% - Request is the only associative entity
+    %% - communication between Client, Translator, Editor and Mediator
+    %%   is outside the system and is not modeled
+    %% - N days is platform configuration, not Order data
