@@ -1,0 +1,75 @@
+@startuml
+left to right direction
+skinparam dpi 110
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+actor Client
+actor Mediator
+actor "Performer" as Performer <<abstract>>
+actor Translator
+actor Editor
+actor "Payment Service" as PS <<external system>>
+
+Translator --|> Performer
+Editor --|> Performer
+
+rectangle "Tlumach" {
+  rectangle "Замовлення" {
+    usecase "UC-01 Створити замовлення" as UC01
+    usecase "UC-02 Завантажити .docx" as UC02
+    usecase "UC-18 Переглянути статус" as UC18
+  }
+  rectangle "Оплата" {
+    usecase "UC-03 Оплатити половину" as UC03
+    usecase "UC-04 Повторити оплату" as UC04
+  }
+  rectangle "Пошук виконавця" {
+    usecase "UC-05 Розіслати запити" as UC05
+    usecase "UC-06 Перевірити оплату\nпершої половини" as UC06
+    usecase "UC-07 Прийняти запит" as UC07
+    usecase "UC-08 Відхилити запит" as UC08
+    usecase "UC-19 Виконати етап роботи\n(абстрактний)" as UC19
+  }
+  rectangle "Редагування" {
+    usecase "UC-09 Призначити Editor" as UC09
+    usecase "UC-10 Завантажити результат" as UC10
+    usecase "UC-11 Позначити готовим" as UC11
+  }
+  rectangle "Видача результату" {
+    usecase "UC-12 Отримати результат" as UC12
+    usecase "UC-13 Перевірити другу оплату" as UC13
+    usecase "UC-14 Підтвердити оплату\nі закрити" as UC14
+  }
+  rectangle "Скасування і довідник" {
+    usecase "UC-15 Скасувати замовлення" as UC15
+    usecase "UC-16 Повернути першу половину" as UC16
+    usecase "UC-17 Керувати довідником мов" as UC17
+  }
+}
+
+Client --> UC01
+Client --> UC03
+Client --> UC04
+Client --> UC12
+Client --> UC18
+Mediator --> UC05
+Mediator --> UC09
+Mediator --> UC11
+Mediator --> UC14
+Mediator --> UC15
+Mediator --> UC17
+Performer --> UC19
+Translator --> UC08
+PS --> UC03
+PS --> UC16
+
+UC07 --|> UC19
+UC10 --|> UC19
+
+UC01 .> UC02 : <<include>>
+UC05 .> UC06 : <<include>>
+UC12 .> UC13 : <<include>>
+UC04 .> UC03 : <<extend>>
+UC16 .> UC15 : <<extend>>
+@enduml
