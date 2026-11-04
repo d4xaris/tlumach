@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor M as Mediator
+    participant S as RequestService
+    participant O as Order
+    participant T as Translator
+    participant R as Request
+
+    M->>+S: sendRequests(orderId)
+    S->>+O: getOrder(orderId)
+    O-->>-S: order (sent_to_translators, uk → en)
+    S->>+T: findByLanguages(sourceLanguageId, targetLanguageId)
+    T-->>-S: translators A, C, D
+    loop each translator
+        S->>+R: existsFor(orderId, translatorId)
+        R-->>-S: true for A and C, false for D
+        opt request does not exist
+            S->>+R: createRequest(orderId, translatorId)
+            R-->>-S: request (pending)
+        end
+    end
+    S-->>-M: requestsSent(1), total 3

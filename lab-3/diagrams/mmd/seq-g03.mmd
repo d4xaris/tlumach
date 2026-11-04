@@ -1,0 +1,19 @@
+sequenceDiagram
+    autonumber
+    actor M as Mediator
+    participant S as RequestService
+    participant O as Order
+    participant P as Payment
+    participant T as Translator
+
+    M->>+S: sendRequests(orderId)
+    S->>+O: getOrder(orderId)
+    O-->>-S: order (created, uk → de)
+    S->>+P: getFirstHalfPayment(orderId)
+    P-->>-S: payment (paid)
+    S->>+T: findByLanguages(sourceLanguageId, targetLanguageId)
+    T-->>-S: empty list
+    opt no translators found
+        S-->>M: no translators for uk → de
+    end
+    deactivate S
