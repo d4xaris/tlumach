@@ -1,27 +1,17 @@
 stateDiagram-v2
-    [*] --> created
-    created --> created: перша половина не paid або немає перекладачів (UC-05, UC-06)
-    created --> sent_to_translators: перша половина paid і є перекладачі (UC-05)
-    sent_to_translators --> in_progress: один Request accepted
-    sent_to_translators --> cancelled: ніхто не взявся, перша половина refunded
-    in_progress --> in_editing: Mediator призначив Editor
-
-    state in_editing {
-        state fork1 <<fork>>
-        state join1 <<join>>
-        [*] --> fork1
-        fork1 --> editing_work
-        fork1 --> second_payment_wait
-        editing_work --> join1: результат завантажено
-        second_payment_wait --> join1: друга половина paid
-        second_payment_wait --> second_payment_overdue: минув due_date
-        second_payment_overdue --> join1: клієнт сплатив
-        join1 --> [*]
-    }
-
-    in_editing --> ready: join виконано
-    second_payment_overdue --> cancelled: N днів без відповіді клієнта
-    ready --> confirmed: Mediator підтвердив оплату і видав результат
-    confirmed --> closed: Mediator закрив замовлення
+    direction TB
+    [*] --> created: 1, Client, UC-01
+    created --> created: 2, Mediator, UC-05
+    created --> sent_to_translators: 3, Mediator, UC-05
+    sent_to_translators --> in_progress: 4, Translator, UC-06
+    sent_to_translators --> sent_to_translators: 4a, Translator, UC-07
+    sent_to_translators --> cancelled: 5, Mediator, UC-13, UC-14
+    in_progress --> in_editing: 6, Mediator, UC-08
+    in_editing --> ready: 7, Mediator, UC-10
+    ready --> confirmed: 8, Mediator, UC-11, UC-12
+    ready --> second_payment_overdue: 9, система
+    second_payment_overdue --> confirmed: 10, Mediator, UC-11, UC-12
+    second_payment_overdue --> cancelled: 11, Mediator, UC-13
+    confirmed --> closed: 12, Mediator, UC-12
     closed --> [*]
     cancelled --> [*]
