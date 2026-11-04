@@ -1,0 +1,55 @@
+@startuml
+top to bottom direction
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam nodesep 35
+skinparam ranksep 45
+
+actor "Client / Mediator\nTranslator / Editor" as Users
+
+package "Tlumach (межа системи)" {
+
+  component "Web UI" as UI
+  component "Backend API" as API
+
+  rectangle "Сервісний шар" as L3 {
+    component "RequestService" as RS
+    component "Scheduler" as SCH
+    component "OrderService" as OS
+    component "BillingService" as BS
+    component "DocumentService" as DS
+    component "CatalogService" as CS
+    component "Platform Config" as CFG
+  }
+
+  component "Data Access" as DAL
+  component "File Storage" as FS
+  database "Database" as DB
+}
+
+component "Payment Service" as PAY <<external>>
+
+Users -down-> UI
+UI -down-( API : IApi
+
+API -down-( RS : IRequestService
+API -down-( OS : IOrderService
+API -down-( BS : IBillingService
+API -down-( DS : IDocumentService
+API -down-( CS : ICatalogService
+
+RS -down-( OS : IOrderService
+SCH -down-( BS : IBillingService
+OS -down-( BS : IBillingService
+OS -down-( DS : IDocumentService
+OS -down-( CFG : IConfig
+RS -down-( CS : ICatalogService
+RS -down-( BS : IBillingService
+
+L3 -down-( DAL : IRepository
+DS -down-( FS : IFileStorage
+DAL -down-> DB
+
+BS -right-( PAY : IPaymentGateway
+PAY -down-( BS : IPaymentCallback
+@enduml
