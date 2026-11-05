@@ -3,7 +3,7 @@
 
 ![Mermaid](https://img.shields.io/badge/diagrams-Mermaid-ff3670?style=for-the-badge&logo=mermaid&logoColor=white)
 ![Markdown](https://img.shields.io/badge/docs-Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white)
-![Status](https://img.shields.io/badge/status-in%20progress-yellow?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-done-brightgreen?style=for-the-badge)
 
 ---
 ## Про проєкт
