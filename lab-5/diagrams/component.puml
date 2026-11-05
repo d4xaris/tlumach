@@ -1,55 +1,111 @@
-@startuml
+@enduml
+@startuml component-diagram
+title Tlumach: component diagram
+
 top to bottom direction
+skinparam linetype ortho
 skinparam shadowing false
-skinparam componentStyle uml2
-skinparam nodesep 35
-skinparam ranksep 45
+skinparam roundCorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam defaultFontColor #111111
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam nodesep 80
+skinparam ranksep 100
+skinparam padding 6
+hide stereotype
 
-actor "Client / Mediator\nTranslator / Editor" as Users
+skinparam ArrowColor #111111
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 10
+skinparam ArrowFontColor #111111
 
-package "Tlumach (межа системи)" {
-
-  component "Web UI" as UI
-  component "Backend API" as API
-
-  rectangle "Сервісний шар" as L3 {
-    component "RequestService" as RS
-    component "Scheduler" as SCH
-    component "OrderService" as OS
-    component "BillingService" as BS
-    component "DocumentService" as DS
-    component "CatalogService" as CS
-    component "Platform Config" as CFG
-  }
-
-  component "Data Access" as DAL
-  component "File Storage" as FS
-  database "Database" as DB
+skinparam actor {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+  BorderThickness 1.2
+}
+skinparam rectangle<<boundary>> {
+  BackgroundColor #FAFAFA
+  BorderColor #888888
+  BorderThickness 1
+  FontStyle bold
+}
+skinparam rectangle<<layer>> {
+  BackgroundColor #F2F2F2
+  BorderColor #888888
+  BorderThickness 1
+  FontStyle bold
+}
+skinparam component {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+  BorderThickness 1.2
+}
+skinparam database {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+  BorderThickness 1.2
 }
 
-component "Payment Service" as PAY <<external>>
+actor "Client, Mediator,\nTranslator, Editor" as Users
 
+rectangle "Межа системи: Tlumach" <<boundary>> as SYS {
+
+  component "**Web UI**\nUC-01 … UC-17" as UI
+  component "**Backend API**\nвхід для всіх UC" as API
+
+  rectangle "Сервісний шар" <<layer>> as L3 {
+    ' рядок 1
+    component "**CatalogService**\nLanguage, Translator-Language\nUC-15" as CS
+    component "**RequestService**\nRequest\nUC-05, 06, 07, 17\nSequence G01-G05" as RS
+
+    ' рядок 2
+    component "**OrderService**\nOrder, усі зміни статусу\nUC-01, 08, 10, 11, 13, 16\nпереходи 0, 1, 3, 4, 5" as OS
+    component "**Scheduler**\nPayment.due_date\nперехід 2 (без UC)" as SCH
+
+    ' рядок 3
+    component "**DocumentService**\nDocument\nUC-02, 09" as DS
+    component "**Platform Config**\nrate_per_word, N днів" as CFG
+    component "**BillingService**\nPayment\nUC-03, 04, 12, 14" as BS
+  }
+
+  component "**File Storage**\n.docx і результат" as FS
+  component "**Data Access**\nчитання й запис\nусіх сутностей ER" as DAL
+  database "**Database**\nUNIQUE (order_id,\ntranslator_id)" as DB
+}
+
+component "**Payment Service**\nоплата і повернення" as PAY
+
+' ---------- Розкладка ----------
+CS -[hidden]right- RS
+OS -[hidden]right- SCH
+DS -[hidden]right- CFG
+CFG -[hidden]right- BS
+RS -[hidden]down- SCH
+FS -[hidden]right- DAL
+
+' ---------- Зв'язки ----------
 Users -down-> UI
-UI -down-( API : IApi
+UI -down-> API : <back:#D3D3D3>  дії користувача  </back>
+API -down-> RS : <back:#D3D3D3>  керування заявками  </back>
 
-API -down-( RS : IRequestService
-API -down-( OS : IOrderService
-API -down-( BS : IBillingService
-API -down-( DS : IDocumentService
-API -down-( CS : ICatalogService
+RS -left-> CS : <back:#D3D3D3>  мови й перекладачі  </back>
+RS -down-> OS : <back:#D3D3D3>  створення замовлення  </back>
 
-RS -down-( OS : IOrderService
-SCH -down-( BS : IBillingService
-OS -down-( BS : IBillingService
-OS -down-( DS : IDocumentService
-OS -down-( CFG : IConfig
-RS -down-( CS : ICatalogService
-RS -down-( BS : IBillingService
+OS -down-> DS : <back:#D3D3D3>  файли замовлення  </back>
+OS -down-> CFG : <back:#D3D3D3>  тариф і терміни  </back>
+OS -down-> BS : <back:#D3D3D3>  оплати й повернення  </back>
+SCH -down-> BS : <back:#D3D3D3>  прострочені платежі  </back>
 
-L3 -down-( DAL : IRepository
-DS -down-( FS : IFileStorage
-DAL -down-> DB
+DS -down-> FS : <back:#D3D3D3>  збереження файлів  </back>
+L3 -down-> DAL : <back:#D3D3D3>  читання / запис  </back>
+DAL -down-> DB : <back:#D3D3D3>  SQL-запити  </back>
 
-BS -right-( PAY : IPaymentGateway
-PAY -down-( BS : IPaymentCallback
+BS <-right-> PAY : <back:#D3D3D3>  оплата, повернення / підтвердження  </back>
 @enduml
