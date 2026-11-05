@@ -1,0 +1,37 @@
+%%{init: {'theme': 'neutral', 'sequence': {'mirrorActors': false, 'actorMargin': 50, 'messageMargin': 30}}}%%
+sequenceDiagram
+    autonumber
+    actor M as Mediator
+    participant S as RequestService
+    participant O as Order
+    participant P as Payment
+    participant T as Translator
+    participant R as Request
+
+    M->>S: sendRequests(orderId)
+    S->>O: getOrder(orderId)
+    O-->>S: order
+    S->>P: getFirstHalfPayment(orderId)
+    P-->>S: payment
+
+    alt not paid
+        S-->>M: error, first half not paid
+    else paid
+        S->>T: findByLanguages(sourceLanguageId, targetLanguageId)
+        T-->>S: translators
+        alt none found
+            S-->>M: error, 0 requests created
+        else found
+            loop each translator
+                S->>R: existsFor(orderId, translatorId)
+                R-->>S: true or false
+                opt not exists
+                    S->>R: createRequest(orderId, translatorId)
+                    R-->>S: request pending
+                end
+            end
+            S->>O: updateStatus(orderId, "sent_to_translators")
+            O-->>S: ok
+            S-->>M: requestsSent(count)
+        end
+    end
